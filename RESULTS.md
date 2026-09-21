@@ -13,15 +13,15 @@ One laptop, measured 2026-09-20. Every figure here traces to a JSON file in this
 | Inference | CPU, Ollama 0.34.2 |
 | Battery | 8,588 mWh full charge |
 | OS | Windows 11 |
-| Electricity | RM 0.4443/kWh (TNB domestic, 44.43 sen, ≤1,500 kWh) |
+| Electricity | $0.1092/kWh |
 
 ## The run
 
 | model | tok/s | TTFT warm | resident | throttle | hrs/Mtok | net W | energy/Mtok | correct |
 |---|---|---|---|---|---|---|---|---|
 | llama3.2:1b | 19.24 | 0.38 s | 1,449 MB | 9.7% | 15.0 | *refused* | *refused* | 3/8 |
-| llama3.2:3b | 12.86 | 0.68 s | 2,443 MB | 1.4% | 21.5 | 10.0 | RM 0.095 | 6/8 |
-| mistral:7b | 6.09 | 1.55 s | 4,802 MB | 2.4% | 45.9 | 11.7 | RM 0.239 | 7/8 |
+| llama3.2:3b | 12.86 | 0.68 s | 2,443 MB | 1.4% | 21.5 | 10.0 | $0.0234 | 6/8 |
+| mistral:7b | 6.09 | 1.55 s | 4,802 MB | 2.4% | 45.9 | 11.7 | $0.0587 | 7/8 |
 
 Idle baseline: **13.2 W**, measured over 300 s with the machine untouched. Net watts are the
 marginal draw above that, so a model is not charged for the screen.
@@ -55,16 +55,19 @@ subnetting.
 
 ## What this costs against buying the tokens
 
-One million output tokens, list prices verified 2026-09-20, converted at RM 4.07/USD:
+One million output tokens, list prices verified 2026-09-20. All figures in USD.
 
-| | USD | MYR |
-|---|---|---|
-| GPT-4.1 nano | $0.40 | RM 1.63 |
-| GPT-4o mini | $0.60 | RM 2.44 |
-| Gemini Flash-Lite | $2.50 | RM 10.18 |
-| Claude Haiku 4.5 | $5.00 | RM 20.35 |
+The electricity tariff is measured locally (TNB domestic, 44.43 sen/kWh) and converted
+once at 4.07 MYR/USD (xe.com, 2026-09-12); nothing below is reported in another currency.
 
-Against RM 0.095–0.239 in electricity. Local wins on money by 7–17×, and loses anyway: the same
+| | per 1M output tokens |
+|---|---|
+| GPT-4.1 nano | $0.40 |
+| GPT-4o mini | $0.60 |
+| Gemini Flash-Lite | $2.50 |
+| Claude Haiku 4.5 | $5.00 |
+
+Against $0.0234–$0.0587 in electricity. Local wins on money by 7–17×, and loses anyway: the same
 million tokens is 21.5 to 45.9 hours of a laptop that can do nothing else meanwhile.
 
 Marginal draw is roughly flat at 10–12 W across model sizes, because it is CPU-bound either way.

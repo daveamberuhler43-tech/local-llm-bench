@@ -291,13 +291,12 @@ def bench(models, tariff, runs, idle=None):
 def report(results, tariff, currency):
     rates_path = os.path.join(HERE, "api_rates.json")
     rates = json.load(open(rates_path, encoding="utf-8")) if os.path.exists(rates_path) else None
-    fx = rates["usd_to_myr"] if rates else 1.0
 
     print()
     print(f"{'MODEL':<20}{'tok/s':>8}{'TTFT':>7}{'W tot':>7}{'W net':>7}{'MODEL MB':>10}{'THROTTLE':>10}{'HRS/Mtok':>10}{'ENERGY/Mtok':>13}")
     print("-" * 92)
     for r in results:
-        cost = f"{currency}{r['energy_cost_per_mtok']:.3f}" if r["energy_cost_per_mtok"] else "no battery"
+        cost = f"{currency}{r['energy_cost_per_mtok']:.4f}" if r["energy_cost_per_mtok"] else "no battery"
         print(f"{r['model']:<20}{r['tok_per_s_median'] or '-':>8}{r['ttft_median_s'] or '-':>7}"
               f"{r['watts_total'] or '-':>7}{r['marginal_watts'] or '-':>7}{r['model_resident_mb'] or '-':>10}"
               f"{(str(r['throttle_pct']) + '%') if r['throttle_pct'] is not None else '-':>10}"
@@ -311,13 +310,12 @@ def report(results, tariff, currency):
         return
 
     print()
-    print(f"One million output tokens, bought instead (list prices, verified "
-          f"{rates['verified']}, at {currency}{fx}/USD):")
+    print(f"One million output tokens, bought instead "
+          f"(list prices, verified {rates['verified']}):")
     for name, v in rates["rates"].items():
-        usd = v["output_per_mtok"]
-        print(f"  {name:<20} ${usd:>5.2f}  = {currency}{usd * fx:>6.2f}   [{v['source']}]")
+        print(f"  {name:<20} ${v['output_per_mtok']:>6.2f}   [{v['source']}]")
 
-    cheapest = min(v["output_per_mtok"] for v in rates["rates"].values()) * fx
+    cheapest = min(v["output_per_mtok"] for v in rates["rates"].values())
     for r in results:
         if not r["energy_cost_per_mtok"]:
             continue
@@ -369,9 +367,10 @@ def main():
     ap.add_argument("--list", action="store_true", help="show installed models")
     ap.add_argument("--quiz", action="store_true", help="run the correctness quiz only")
     ap.add_argument("--runs", type=int, default=2, help="passes over the prompt set (default 2)")
-    ap.add_argument("--tariff", type=float, default=0.4443,
-                    help="electricity price per kWh (default RM0.4443 = TNB domestic 44.43 sen, <=1500kWh)")
-    ap.add_argument("--currency", default="RM")
+    ap.add_argument("--tariff", type=float, default=0.1092,
+                    help="electricity price in USD per kWh (default 0.1092 = TNB domestic "
+                         "44.43 sen at 4.07 MYR/USD). Everything is reported in USD.")
+    ap.add_argument("--currency", default="$")
     ap.add_argument("--idle", type=float, default=None,
                     help="reuse a previously measured idle baseline in watts, skipping the 5min wait")
     ap.add_argument("--out", default="bench-results.json")

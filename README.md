@@ -9,14 +9,14 @@ Every "run an LLM locally" tutorial stops at "it works". This measures what happ
 MODEL                  tok/s   TTFT  W tot  W net  MODEL MB  THROTTLE  HRS/Mtok  ENERGY/Mtok
 --------------------------------------------------------------------------------------------
 llama3.2:1b            19.24   0.38      -      -      1449      9.7%      15.0            -
-llama3.2:3b            12.86   0.68   23.2   10.0      2443      1.4%      21.5      RM0.095
-mistral:7b              6.09   1.55   24.9   11.7      4802      2.4%      45.9      RM0.239
+llama3.2:3b            12.86   0.68   23.2   10.0      2443      1.4%      21.5      $0.0234
+mistral:7b              6.09   1.55   24.9   11.7      4802      2.4%      45.9      $0.0587
 
 One million output tokens, bought instead:
-  GPT-4.1 nano         $ 0.40  = RM  1.63
-  GPT-4o mini          $ 0.60  = RM  2.44
-  Gemini Flash-Lite    $ 2.50  = RM 10.18
-  Claude Haiku 4.5     $ 5.00  = RM 20.35
+  GPT-4.1 nano         $  0.40
+  GPT-4o mini          $  0.60
+  Gemini Flash-Lite    $  2.50
+  Claude Haiku 4.5     $  5.00
 ```
 
 Measured on an i5-1145G7 / 16 GB / integrated graphics, CPU inference. See [RESULTS.md](RESULTS.md)
@@ -24,7 +24,7 @@ for the full run, what was refused, and why.
 
 ## What it finds
 
-**Electricity is not the problem.** A million tokens costs RM 0.10–0.24 in power against RM 1.63 to
+**Electricity is not the problem.** A million tokens costs $0.10–0.24 in power against $0.40 to
 buy from the cheapest API — self-hosting wins the money argument by 7–17×.
 
 **Time is the problem.** That same million tokens costs 22–46 hours of a laptop you cannot use for

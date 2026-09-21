@@ -32,7 +32,6 @@ CLAIMS = [
     ("2443",  BATTERY, "llama3.2:3b", "model_resident_mb",    0, "3b resident"),
     ("1.4",   BATTERY, "llama3.2:3b", "throttle_pct",         1, "3b throttle"),
     ("21.5",  BATTERY, "llama3.2:3b", "hours_per_mtok",       1, "3b hrs/Mtok"),
-    ("0.095", BATTERY, "llama3.2:3b", "energy_cost_per_mtok", 3, "3b RM/Mtok"),
     ("6.09",  BATTERY, "mistral:7b",  "tok_per_s_median",     2, "7b tok/s"),
     ("1.55",  BATTERY, "mistral:7b",  "ttft_median_s",        2, "7b TTFT"),
     ("24.9",  BATTERY, "mistral:7b",  "watts_total",          1, "7b W tot"),
@@ -40,8 +39,17 @@ CLAIMS = [
     ("4802",  BATTERY, "mistral:7b",  "model_resident_mb",    0, "7b resident"),
     ("2.4",   BATTERY, "mistral:7b",  "throttle_pct",         1, "7b throttle"),
     ("45.9",  BATTERY, "mistral:7b",  "hours_per_mtok",       1, "7b hrs/Mtok"),
-    ("0.239", BATTERY, "mistral:7b",  "energy_cost_per_mtok", 3, "7b RM/Mtok"),
 ]
+
+# Energy cost is DERIVED, not stored: the runs were executed with a local tariff
+# in MYR, and everything published is USD only. So the check recomputes it from the
+# measured kWh rather than trusting the currency field in the run file.
+# Derived, never rounded first: rounding the tariff to $0.1092 before multiplying
+# moves the 3B figure from $0.0234 to $0.0235 and the published number stops
+# matching the arithmetic.
+TARIFF_USD = 0.4443 / 4.07  # TNB domestic 44.43 sen/kWh, 4.07 MYR/USD (xe.com 2026-09-12)
+DERIVED = [("0.0234", BATTERY, "llama3.2:3b", "3b $/Mtok"),
+           ("0.0587", BATTERY, "mistral:7b",  "7b $/Mtok")]
 
 # Figures the tool REFUSED to produce. If a run ever fills one of these in, the
 # README's empty cell becomes a lie and this must fail.
@@ -68,11 +76,18 @@ def main():
         elif shown not in readme:
             problems.append(f"{label}: {shown} is not in README")
 
-    fx = rates["usd_to_myr"]
+    for shown, path, model, label in DERIVED:
+        kwh = runs[path][model]["kwh_per_mtok"]
+        actual = kwh * TARIFF_USD
+        if round(actual, 4) != round(float(shown), 4):
+            problems.append(f"{label}: README {shown} vs {kwh} kWh x ${TARIFF_USD:.6f} = {actual:.4f}")
+        elif shown not in readme:
+            problems.append(f"{label}: {shown} is not in README")
+
     for name, v in rates["rates"].items():
-        myr = f"{v['output_per_mtok'] * fx:.2f}"
-        if myr not in readme:
-            problems.append(f"rate {name}: RM{myr} not in README")
+        usd = f"{v['output_per_mtok']:.2f}"
+        if usd not in readme:
+            problems.append(f"rate {name}: ${usd} not in README")
 
     for path, model, field in REFUSED:
         if runs[path][model][field] is not None:
@@ -80,8 +95,9 @@ def main():
 
     for p in problems:
         print("FAIL", p)
-    print(f"GATE 1: {len(CLAIMS)} figures + {len(rates['rates'])} rates + "
-          f"{len(REFUSED)} refusals checked, {len(problems)} problems")
+    print(f"GATE 1: {len(CLAIMS)} figures + {len(DERIVED)} derived + "
+          f"{len(rates['rates'])} rates + {len(REFUSED)} refusals checked, "
+          f"{len(problems)} problems")
     return 1 if problems else 0
 
 
