@@ -1,0 +1,13 @@
+{
+ "verified": "2026-09-20",
+ "note": "Published list prices for the SMALL/CHEAP tier of each provider - the class a quantised 1B-7B local model actually competes with. Comparing a 7B laptop model to a frontier model would be dishonest. No API key was used; these are list prices read from each provider's public pricing page.",
+ "currency": "USD",
+ "usd_to_myr": 4.07,
+ "usd_to_myr_source": "xe.com spot, 2026-09-12; USDMYR 50-day average 4.07",
+ "rates": {
+  "GPT-4.1 nano": {"input_per_mtok": 0.10, "output_per_mtok": 0.40, "source": "developers.openai.com/api/docs/pricing"},
+  "GPT-4o mini": {"input_per_mtok": 0.15, "output_per_mtok": 0.60, "source": "developers.openai.com/api/docs/pricing"},
+  "Gemini Flash-Lite": {"input_per_mtok": 0.30, "output_per_mtok": 2.50, "source": "ai.google.dev/gemini-api/docs/pricing"},
+  "Claude Haiku 4.5": {"input_per_mtok": 1.00, "output_per_mtok": 5.00, "source": "platform.claude.com/docs/en/about-claude/pricing"}
+ }
+}

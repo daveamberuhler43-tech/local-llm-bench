@@ -1,0 +1,34 @@
+{
+ "tariff_per_kwh": 0.4443,
+ "currency": "RM",
+ "prompts": [
+  "Explain what a reverse proxy does, in one paragraph.",
+  "Write a bash one-liner that finds the 10 largest files under /var/log.",
+  "A server's disk fills up every Tuesday at 3am. List four things you would check, in order.",
+  "Summarise the difference between a container image and a running container.",
+  "Write a Python function that retries a call with exponential backoff."
+ ],
+ "num_predict": 300,
+ "results": [
+  {
+   "model": "llama3.2:1b",
+   "runs": 30,
+   "tok_per_s_median": 19.24,
+   "tok_per_s_first_half": 19.42,
+   "tok_per_s_second_half": 17.54,
+   "throttle_pct": 9.7,
+   "ttft_median_s": 0.38,
+   "idle_watts": 13.2,
+   "marginal_watts": null,
+   "power_window_s": 8265,
+   "hours_per_mtok": 15.0,
+   "kwh_per_mtok": null,
+   "energy_cost_per_mtok": null,
+   "system_ram_peak_mb": 13735,
+   "cpu_avg_pct": 68.0,
+   "watts_total": null,
+   "model_resident_mb": 1449,
+   "quiz_score": "3/8"
+  }
+ ]
+}

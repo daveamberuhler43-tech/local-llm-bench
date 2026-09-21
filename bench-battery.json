@@ -1,0 +1,71 @@
+{
+ "tariff_per_kwh": 0.4443,
+ "currency": "RM",
+ "prompts": [
+  "Explain what a reverse proxy does, in one paragraph.",
+  "Write a bash one-liner that finds the 10 largest files under /var/log.",
+  "A server's disk fills up every Tuesday at 3am. List four things you would check, in order.",
+  "Summarise the difference between a container image and a running container.",
+  "Write a Python function that retries a call with exponential backoff."
+ ],
+ "num_predict": 300,
+ "results": [
+  {
+   "model": "llama3.2:1b",
+   "runs": 5,
+   "tok_per_s_median": 23.51,
+   "tok_per_s_first_half": 23.37,
+   "tok_per_s_second_half": 23.8,
+   "throttle_pct": -1.9,
+   "ttft_median_s": 0.33,
+   "idle_watts": 13.2,
+   "marginal_watts": 22.5,
+   "hours_per_mtok": 11.8,
+   "kwh_per_mtok": 0.2645,
+   "energy_cost_per_mtok": 0.1175,
+   "system_ram_peak_mb": 8726,
+   "cpu_avg_pct": 54.9,
+   "watts_total": 35.7,
+   "model_resident_mb": 1449,
+   "quiz_score": "3/8"
+  },
+  {
+   "model": "llama3.2:3b",
+   "runs": 5,
+   "tok_per_s_median": 12.86,
+   "tok_per_s_first_half": 13.04,
+   "tok_per_s_second_half": 12.86,
+   "throttle_pct": 1.4,
+   "ttft_median_s": 0.68,
+   "idle_watts": 13.2,
+   "marginal_watts": 10.0,
+   "hours_per_mtok": 21.5,
+   "kwh_per_mtok": 0.2148,
+   "energy_cost_per_mtok": 0.0954,
+   "system_ram_peak_mb": 11251,
+   "cpu_avg_pct": 52.1,
+   "watts_total": 23.2,
+   "model_resident_mb": 2443,
+   "quiz_score": "6/8"
+  },
+  {
+   "model": "mistral:7b",
+   "runs": 5,
+   "tok_per_s_median": 6.09,
+   "tok_per_s_first_half": 6.13,
+   "tok_per_s_second_half": 5.99,
+   "throttle_pct": 2.4,
+   "ttft_median_s": 1.55,
+   "idle_watts": 13.2,
+   "marginal_watts": 11.7,
+   "hours_per_mtok": 45.9,
+   "kwh_per_mtok": 0.5375,
+   "energy_cost_per_mtok": 0.2388,
+   "system_ram_peak_mb": 15864,
+   "cpu_avg_pct": 58.9,
+   "watts_total": 24.9,
+   "model_resident_mb": 4802,
+   "quiz_score": "7/8"
+  }
+ ]
+}
