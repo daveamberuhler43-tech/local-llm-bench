@@ -1,0 +1,101 @@
+{
+ "floor_mb": 900,
+ "baseline": {
+  "available_mb": 4618,
+  "used_mb": 11489,
+  "percent": 71.3,
+  "swap_used_mb": 504
+ },
+ "runs": [
+  {
+   "ballast_mb": 0,
+   "available_before_mb": 4614,
+   "available_after_mb": 3364,
+   "swap_used_before_mb": 504,
+   "swap_used_after_mb": 504,
+   "swap_delta_mb": 0,
+   "model_resident_mb": 1449,
+   "cold_ttft_s": 4.42,
+   "cold_load_wall_s": 8.86,
+   "tok_per_s": 24.82,
+   "quiz_score": 3,
+   "quiz_total": 8,
+   "model": "llama3.2:1b"
+  },
+  {
+   "ballast_mb": 512,
+   "available_before_mb": 2868,
+   "available_after_mb": 2680,
+   "swap_used_before_mb": 504,
+   "swap_used_after_mb": 504,
+   "swap_delta_mb": 0,
+   "model_resident_mb": 1449,
+   "cold_ttft_s": 2.06,
+   "cold_load_wall_s": 6.39,
+   "tok_per_s": 24.47,
+   "quiz_score": 3,
+   "quiz_total": 8,
+   "model": "llama3.2:1b"
+  },
+  {
+   "ballast_mb": 1024,
+   "available_before_mb": 2172,
+   "available_after_mb": 2201,
+   "swap_used_before_mb": 504,
+   "swap_used_after_mb": 504,
+   "swap_delta_mb": 0,
+   "model_resident_mb": 1449,
+   "cold_ttft_s": 2.36,
+   "cold_load_wall_s": 6.9,
+   "tok_per_s": 23.24,
+   "quiz_score": 3,
+   "quiz_total": 8,
+   "model": "llama3.2:1b"
+  },
+  {
+   "ballast_mb": 1536,
+   "available_before_mb": 1696,
+   "available_after_mb": 1803,
+   "swap_used_before_mb": 504,
+   "swap_used_after_mb": 504,
+   "swap_delta_mb": 0,
+   "model_resident_mb": 1449,
+   "cold_ttft_s": 2.04,
+   "cold_load_wall_s": 8.02,
+   "tok_per_s": 18.93,
+   "quiz_score": 3,
+   "quiz_total": 8,
+   "model": "llama3.2:1b"
+  },
+  {
+   "ballast_mb": 2048,
+   "available_before_mb": 1324,
+   "available_after_mb": 1122,
+   "swap_used_before_mb": 504,
+   "swap_used_after_mb": 945,
+   "swap_delta_mb": 441,
+   "model_resident_mb": 1449,
+   "cold_ttft_s": 2.09,
+   "cold_load_wall_s": 7.98,
+   "tok_per_s": 16.25,
+   "quiz_score": 3,
+   "quiz_total": 8,
+   "model": "llama3.2:1b"
+  },
+  {
+   "ballast_mb": 2048,
+   "available_before_mb": 1122,
+   "available_after_mb": 1238,
+   "swap_used_before_mb": 945,
+   "swap_used_after_mb": 963,
+   "swap_delta_mb": 18,
+   "model_resident_mb": 1449,
+   "cold_ttft_s": 5.49,
+   "cold_load_wall_s": 11.3,
+   "tok_per_s": 18.13,
+   "quiz_score": 3,
+   "quiz_total": 8,
+   "model": "llama3.2:1b"
+  }
+ ]
+}

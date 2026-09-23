@@ -99,12 +99,84 @@ window lied. That is why the tool refuses rather than estimates, and why the 1B'
 table above is empty. It could be inferred from the flat-power finding. It would look like a
 measurement, so it isn't there.
 
+## How much RAM does it actually need? (`ram_pressure.py`)
+
+Every "how much RAM do you need" answer is a rule of thumb. This takes the RAM away a gigabyte at a
+time and measures what breaks, in order: time to first token, tokens/sec, swap, and — the question
+nobody seems to ask — whether the answers themselves get worse.
+
+```bash
+python ram_pressure.py --selftest              # maths + safety, allocates nothing
+python ram_pressure.py --probe                 # show headroom, allocates nothing
+python ram_pressure.py --models llama3.2:1b --max-ballast 3
+```
+
+It deliberately starves the machine it runs on. Three guards: it never allocates past 900 MB of
+available memory, checked before *every* step; it releases everything on exit including Ctrl-C and
+exceptions; and it refuses to start if the machine is already below that floor. Close your work
+anyway — a swapping Windows box is unpleasant to use.
+
+**The file size is not the memory size.** Resident memory runs ~500–630 MB above what the model
+weighs on disk, on every model measured:
+
+```
+MODEL                       ON DISK   RESIDENT    GAP
+--------------------------------------------------------
+llama3.2:3b-instruct-q8_0    3263 MB   3780 MB   +517 MB
+mistral:7b-instruct-q3_K_M   3357 MB   3987 MB   +630 MB
+mistral:7b                   4170 MB   4802 MB   +632 MB
+```
+
+And *loading* costs more than either. Bringing up llama3.2:3b — a model that reports 2443 MB
+resident — took available memory from 4477 MB to 1603 MB. That is 2874 MB gone to hold a 2443 MB
+model, because the runtime reads the file through the page cache on the way in.
+
+**Taking RAM away makes it slower. It does not make it wrong.** The 1B, walked down a ballast
+ladder until the safety floor stopped the test:
+
+```
+AVAILABLE   tok/s   SWAP DELTA   QUIZ
+--------------------------------------
+  4614 MB   24.82         0 MB   3/8
+  2868 MB   24.47         0 MB   3/8
+  2172 MB   23.24         0 MB   3/8
+  1696 MB   18.93         0 MB   3/8
+  1324 MB   16.25       441 MB   3/8
+  1122 MB   18.13        18 MB   3/8
+```
+
+24.82 → 16.25 tok/s is a 35% loss. The score is the same at the top of that ladder and at the
+bottom. Across 12 measurements and three models — 1B at 3/8, 3B at 6/8, 7B at 7/8 — no score moved
+by a single question under any amount of memory pressure. Starving a model degrades throughput,
+not accuracy. Whatever it got wrong with 4.6 GB free, it got wrong the same way with 1.1 GB free.
+
+**The 7B does not fit.** mistral:7b needs no help to run the machine out: loading it with *zero*
+ballast added left 837 MB available, already under the floor the tool refuses to cross.
+
+**So run the smaller one.** On the same eight questions:
+
+```
+                            RESIDENT   tok/s   QUIZ
+---------------------------------------------------
+mistral:7b                   4802 MB    6.09   7/8
+llama3.2:3b-instruct-q8_0    3780 MB    8.43   7/8
+```
+
+1022 MB less, 38% faster, identical score. The q3 quantisation of the 7B also scores 7/8 at
+3987 MB — but it throttles 27.0% over a sustained run against 2.4% for the q4, so it is working the
+processor harder for its size and that advantage may not survive a longer test than this one.
+
 ## Limits
 
 One laptop, integrated graphics, CPU inference, three quantised models from one runtime. It says
 nothing about a machine with a dedicated GPU, where the whole shape of this changes. Electricity is
 the only cost measured — hardware, your time, and the laptop being unusable while it runs are not in
 that number.
+
+The pressure ladder is one laptop's page-cache and swap behaviour under Windows; a Linux box
+with different swappiness will not fall over at the same place. And "the score never moved" is
+eight questions, not a benchmark suite — it rules out memory pressure silently corrupting
+output, it does not certify any of these models as correct.
 
 Run it on your own machine and post what you get.
 

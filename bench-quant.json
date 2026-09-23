@@ -1,0 +1,54 @@
+{
+ "tariff_per_kwh": 0.1092,
+ "currency": "$",
+ "prompts": [
+  "Explain what a reverse proxy does, in one paragraph.",
+  "Write a bash one-liner that finds the 10 largest files under /var/log.",
+  "A server's disk fills up every Tuesday at 3am. List four things you would check, in order.",
+  "Summarise the difference between a container image and a running container.",
+  "Write a Python function that retries a call with exponential backoff."
+ ],
+ "num_predict": 300,
+ "results": [
+  {
+   "model": "mistral:7b-instruct-q3_K_M",
+   "runs": 5,
+   "tok_per_s_median": 6.9,
+   "tok_per_s_first_half": 8.04,
+   "tok_per_s_second_half": 5.87,
+   "throttle_pct": 27.0,
+   "ttft_median_s": 2.44,
+   "idle_watts": null,
+   "marginal_watts": null,
+   "power_window_s": 136,
+   "hours_per_mtok": 41.2,
+   "kwh_per_mtok": null,
+   "energy_cost_per_mtok": null,
+   "system_ram_peak_mb": 11946,
+   "cpu_avg_pct": 62.7,
+   "watts_total": null,
+   "model_resident_mb": 3987,
+   "quiz_score": "7/8"
+  },
+  {
+   "model": "llama3.2:3b-instruct-q8_0",
+   "runs": 5,
+   "tok_per_s_median": 8.43,
+   "tok_per_s_first_half": 8.38,
+   "tok_per_s_second_half": 8.38,
+   "throttle_pct": 0.0,
+   "ttft_median_s": 0.99,
+   "idle_watts": null,
+   "marginal_watts": null,
+   "power_window_s": 141,
+   "hours_per_mtok": 33.1,
+   "kwh_per_mtok": null,
+   "energy_cost_per_mtok": null,
+   "system_ram_peak_mb": 15424,
+   "cpu_avg_pct": 54.7,
+   "watts_total": null,
+   "model_resident_mb": 3780,
+   "quiz_score": "7/8"
+  }
+ ]
+}

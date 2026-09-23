@@ -1,0 +1,41 @@
+{
+ "floor_mb": 900,
+ "baseline": {
+  "available_mb": 4755,
+  "used_mb": 11352,
+  "percent": 70.5,
+  "swap_used_mb": 905
+ },
+ "runs": [
+  {
+   "ballast_mb": 0,
+   "available_before_mb": 4754,
+   "available_after_mb": 837,
+   "swap_used_before_mb": 905,
+   "swap_used_after_mb": 942,
+   "swap_delta_mb": 37,
+   "model_resident_mb": 4802,
+   "cold_ttft_s": 8.85,
+   "cold_load_wall_s": 27.32,
+   "tok_per_s": 5.97,
+   "quiz_score": 7,
+   "quiz_total": 8,
+   "model": "mistral:7b"
+  },
+  {
+   "ballast_mb": 0,
+   "available_before_mb": 837,
+   "available_after_mb": 1258,
+   "swap_used_before_mb": 942,
+   "swap_used_after_mb": 1171,
+   "swap_delta_mb": 229,
+   "model_resident_mb": 4802,
+   "cold_ttft_s": 8.34,
+   "cold_load_wall_s": 24.84,
+   "tok_per_s": 6.46,
+   "quiz_score": 7,
+   "quiz_total": 8,
+   "model": "mistral:7b"
+  }
+ ]
+}

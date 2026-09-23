@@ -1,0 +1,31 @@
+{
+ "source": "GET /api/tags",
+ "captured": "2026-09-23",
+ "models": [
+  {
+   "model": "llama3.2:1b",
+   "disk_bytes": 1321098329,
+   "disk_mb": 1260
+  },
+  {
+   "model": "llama3.2:3b",
+   "disk_bytes": 2019393189,
+   "disk_mb": 1926
+  },
+  {
+   "model": "llama3.2:3b-instruct-q8_0",
+   "disk_bytes": 3421914787,
+   "disk_mb": 3263
+  },
+  {
+   "model": "mistral:7b",
+   "disk_bytes": 4372824384,
+   "disk_mb": 4170
+  },
+  {
+   "model": "mistral:7b-instruct-q3_K_M",
+   "disk_bytes": 3519934698,
+   "disk_mb": 3357
+  }
+ ]
+}

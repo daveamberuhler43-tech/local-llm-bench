@@ -13,6 +13,7 @@ transcribed, rounded or remembered into the README without this failing.
 """
 
 import json
+import re
 import sys
 
 BATTERY = "bench-battery.json"   # the clean on-battery run: speed + power
@@ -57,6 +58,176 @@ REFUSED = [(LONG_1B, "llama3.2:1b", "marginal_watts"),
            (LONG_1B, "llama3.2:1b", "energy_cost_per_mtok")]
 
 
+# ---------------------------------------------------------------------------
+# Video 003 figures: the RAM-pressure section.
+#
+# Same rule as above - every number in that section names the field it came from.
+# The ladder is checked row by row rather than as a summary, because the claim
+# being made is "the score never moved", and a summary cannot show that.
+# ---------------------------------------------------------------------------
+
+QUANT = "bench-quant.json"          # the two extra quantisations
+DISK = "model-disk-sizes.json"      # GET /api/tags, sizes in bytes
+V003 = "video-003-data.json"        # lineup + the 12-step pressure ladder
+
+# (model, on-disk MB, resident MB, gap MB) - resident is cross-checked against the run
+DISK_VS_RESIDENT = [
+    ("llama3.2:3b-instruct-q8_0",  3263, 3780, 517),
+    ("mistral:7b-instruct-q3_K_M", 3357, 3987, 630),
+    ("mistral:7b",                 4170, 4802, 632),
+]
+
+# Loading llama3.2:3b: available before, available after, resident, cost
+LOAD_COST = (4477, 1603, 2443, 2874)
+
+# The 1B ladder, in order: available MB, tok/s, swap delta MB, quiz score
+LADDER = [
+    (4614, 24.82,   0, 3),
+    (2868, 24.47,   0, 3),
+    (2172, 23.24,   0, 3),
+    (1696, 18.93,   0, 3),
+    (1324, 16.25, 441, 3),
+    (1122, 18.13,  18, 3),
+]
+
+SEVEN_B_AVAILABLE_MB = 837   # loading mistral:7b with zero ballast added
+
+
+def rows(path, key="results"):
+    return json.load(open(path, encoding="utf-8"))[key]
+
+
+def check_v003_sources(problems):
+    """video-003-data.json is a convenience view. Prove it still equals its sources.
+
+    Nothing in the README reads the raw files directly, so a hand-edit here would be
+    invisible to every other check in this file - the same shape of defect this whole
+    script was written for.
+    """
+    v003 = json.load(open(V003, encoding="utf-8"))
+
+    raw = json.load(open("ram-pressure-all.json", encoding="utf-8"))["runs"]
+    if len(raw) != len(v003["pressure"]):
+        problems.append(f"{V003} has {len(v003['pressure'])} pressure rows, "
+                        f"ram-pressure-all.json has {len(raw)}")
+    for i, (r, p) in enumerate(zip(raw, v003["pressure"])):
+        drift = {k: (p[k], r.get(k)) for k in p if p[k] != r.get(k)}
+        if drift:
+            problems.append(f"{V003} pressure row {i} drifted from the run: {drift}")
+
+    src = {}
+    for path in (LONG_1B, BATTERY, QUANT):
+        for r in rows(path):
+            src.setdefault(r["model"], (path, r))
+    fields = [("resident_mb", "model_resident_mb"), ("tok_per_s", "tok_per_s_median"),
+              ("ttft_s", "ttft_median_s"), ("hours_per_mtok", "hours_per_mtok"),
+              ("throttle_pct", "throttle_pct")]
+    for m in v003["lineup"]:
+        if m["model"] not in src:
+            problems.append(f"{V003} lineup has {m['model']}, no run file produced it")
+            continue
+        path, r = src[m["model"]]
+        for here, there in fields:
+            if round(float(m[here]), 2) != round(float(r[there]), 2):
+                problems.append(f"{V003} {m['model']}.{here} {m[here]} vs {path}:{there} {r[there]}")
+
+
+def check_v003(readme, problems):
+    disk = {m["model"]: m for m in rows(DISK, "models")}
+    v003 = json.load(open(V003, encoding="utf-8"))
+    lineup = {r["model"]: r for r in v003["lineup"]}
+    ladder = [r for r in v003["pressure"] if r["model"] == "llama3.2:1b"]
+    quant = {r["model"]: r for r in rows(QUANT)}
+
+    def shown(text, label):
+        if text not in readme:
+            problems.append(f"{label}: {text} is not in README")
+
+    for model, mb, resident, gap in DISK_VS_RESIDENT:
+        if disk[model]["disk_mb"] != mb:
+            problems.append(f"{model} disk: README {mb} vs {DISK} {disk[model]['disk_mb']}")
+        if lineup[model]["resident_mb"] != resident:
+            problems.append(f"{model} resident: README {resident} vs {V003} {lineup[model]['resident_mb']}")
+        if resident - mb != gap:
+            problems.append(f"{model} gap: README {gap} vs {resident} - {mb} = {resident - mb}")
+        shown(f"{mb} MB", f"{model} disk")
+        shown(f"{gap} MB", f"{model} gap")
+
+    before, after, resident, cost = LOAD_COST
+    load = next(r for r in v003["pressure"] if r["model"] == "llama3.2:3b")
+    if (load["available_before_mb"], load["available_after_mb"]) != (before, after):
+        problems.append(f"3b load: README {before}->{after} vs {V003} "
+                        f"{load['available_before_mb']}->{load['available_after_mb']}")
+    if load["model_resident_mb"] != resident:
+        problems.append(f"3b load resident: README {resident} vs {V003} {load['model_resident_mb']}")
+    if before - after != cost:
+        problems.append(f"3b load cost: README {cost} vs {before} - {after} = {before - after}")
+    shown(f"{cost} MB gone", "3b load cost")
+
+    # The ladder is parsed back OUT of the README rather than compared to a constant
+    # here. A constant that matches the JSON proves nothing about what was actually
+    # published: a mutation test showed a wrong quiz column in the table sailing
+    # through while every check passed.
+    printed = re.findall(r"^\s*(\d+) MB\s+([\d.]+)\s+(-?\d+) MB\s+(\d+)/8\s*$",
+                         readme, re.M)
+    if len(printed) != len(LADDER):
+        problems.append(f"ladder: README prints {len(printed)} rows, expected {len(LADDER)}")
+    if len(ladder) != len(LADDER):
+        problems.append(f"ladder: {V003} has {len(ladder)} rows, expected {len(LADDER)}")
+    for i, (avail, tps, swap, quiz) in enumerate(LADDER):
+        r = ladder[i]
+        got = (r["available_before_mb"], round(r["tok_per_s"], 2), r["swap_delta_mb"], r["quiz_score"])
+        if got != (avail, tps, swap, quiz):
+            problems.append(f"ladder row {i}: expected {(avail, tps, swap, quiz)} vs {V003} {got}")
+        if i < len(printed):
+            a, t, s, q = printed[i]
+            pub = (int(a), float(t), int(s), int(q))
+            if pub != got:
+                problems.append(f"ladder row {i}: README prints {pub} vs {V003} {got}")
+
+    # "24.82 -> 16.25 is a 35% loss" - derived, and it is the video's whole hook
+    top, bottom = LADDER[0][1], LADDER[4][1]
+    loss = round((1 - bottom / top) * 100)
+    if loss != 35:
+        problems.append(f"speed loss: README 35% vs 1 - {bottom}/{top} = {loss}%")
+
+    # "no score moved by a single question" across all 12 measurements
+    for model, score in (("llama3.2:1b", 3), ("llama3.2:3b", 6), ("mistral:7b", 7)):
+        got = {r["quiz_score"] for r in v003["pressure"] if r["model"] == model}
+        if got != {score}:
+            problems.append(f"{model} scores moved under pressure: {sorted(got)}, README says {score}/8")
+    n = len(v003["pressure"])
+    if n != 12:
+        problems.append(f"README says 12 measurements, {V003} has {n}")
+
+    seven = [r for r in v003["pressure"] if r["model"] == "mistral:7b" and r["ballast_mb"] == 0]
+    if min(r["available_before_mb"] for r in seven) != SEVEN_B_AVAILABLE_MB:
+        problems.append(f"7b headroom: README {SEVEN_B_AVAILABLE_MB} vs {V003} "
+                        f"{min(r['available_before_mb'] for r in seven)}")
+    shown(f"{SEVEN_B_AVAILABLE_MB} MB available", "7b headroom")
+
+    # the recommendation: 1022 MB less, 38% faster, identical score
+    big, small = lineup["mistral:7b"], lineup["llama3.2:3b-instruct-q8_0"]
+    if big["resident_mb"] - small["resident_mb"] != 1022:
+        problems.append(f"saving: README 1022 vs {big['resident_mb']} - {small['resident_mb']}")
+    faster = round((small["tok_per_s"] / big["tok_per_s"] - 1) * 100)
+    if faster != 38:
+        problems.append(f"faster: README 38% vs {small['tok_per_s']}/{big['tok_per_s']} = {faster}%")
+    if big["quiz"] != small["quiz"]:
+        problems.append(f"identical score: {big['quiz']} vs {small['quiz']}")
+    shown("1022 MB less, 38% faster", "recommendation")
+
+    # the caveat that undercuts the q3: it throttles 27.0% against the q4's 2.4%
+    for model, path, pct in (("mistral:7b-instruct-q3_K_M", QUANT, 27.0),
+                             ("mistral:7b", BATTERY, 2.4)):
+        actual = {r["model"]: r for r in rows(path)}[model]["throttle_pct"]
+        if round(float(actual), 1) != pct:
+            problems.append(f"{model} throttle: README {pct} vs {path} {actual}")
+    shown("27.0%", "q3 throttle")
+    shown("2.4%", "q4 throttle")
+    return 6 + len(LADDER) * 2 + 12
+
+
 def load(path):
     return {r["model"]: r for r in json.load(open(path, encoding="utf-8"))["results"]}
 
@@ -93,11 +264,14 @@ def main():
         if runs[path][model][field] is not None:
             problems.append(f"{model}:{field} is populated, but README shows it as refused")
 
+    check_v003_sources(problems)
+    extra = check_v003(readme, problems)
+
     for p in problems:
         print("FAIL", p)
     print(f"GATE 1: {len(CLAIMS)} figures + {len(DERIVED)} derived + "
-          f"{len(rates['rates'])} rates + {len(REFUSED)} refusals checked, "
-          f"{len(problems)} problems")
+          f"{len(rates['rates'])} rates + {len(REFUSED)} refusals + "
+          f"{extra} RAM-pressure checks, {len(problems)} problems")
     return 1 if problems else 0
 
 
