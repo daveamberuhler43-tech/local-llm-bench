@@ -1,0 +1,60 @@
+{
+ "api": "http://127.0.0.1:11434",
+ "seed": 7,
+ "temperature": 0,
+ "think": false,
+ "note": "live capture of the benchmark: same call and settings, run-major order; warm before timing; medians not means; only parse_duration is auto-graded",
+ "results": [
+  {
+   "model": "qwen3.5:4b",
+   "build": {
+    "digest": "d8b0f5e9760cd1682034f292d7ef72ec46f432149be0df7574bf2d6e92e38c04",
+    "size_bytes": 3324173934,
+    "modified_at": "2026-10-07T12:56:49.4644349+08:00",
+    "ollama_version": "0.35.1"
+   },
+   "runs_per_task": 3,
+   "total_median_wall_s": 79.74,
+   "tasks": [
+    {
+     "task": "parse_duration",
+     "median_wall_s": 49.06,
+     "median_tokens": 164,
+     "median_tok_per_s": 3.42,
+     "correct": "0/3",
+     "replies": [
+      "```python\ndef parse_duration(s):\n    s = s.lower()\n    total_seconds = 0\n    \n    if 'h' in s:\n        hours = int(''.join(filter(str.isdigit, s.split('h')[0])))\n        total_seconds += hours * 3600\n        remaining = s.replace('h', '')\n    \n    if 'm' in remaining:\n        minutes = int(''.join(filter(str.isdigit, remaining.split('m')[0])))\n        total_seconds += minutes * 60\n        remaining = remaining.replace('m', '')\n    \n    if 's' in remaining:\n        seconds = int(''.join(filter(str.isdigit, remaining.split('s')[0])))\n        total_seconds += seconds\n    \n    return total_seconds\n```",
+      "```python\ndef parse_duration(s):\n    s = s.lower()\n    total_seconds = 0\n    \n    if 'h' in s:\n        hours = int(''.join(filter(str.isdigit, s.split('h')[0])))\n        total_seconds += hours * 3600\n        remaining = s.replace('h', '')\n    \n    if 'm' in remaining:\n        minutes = int(''.join(filter(str.isdigit, remaining.split('m')[0])))\n        total_seconds += minutes * 60\n        remaining = remaining.replace('m', '')\n    \n    if 's' in remaining:\n        seconds = int(''.join(filter(str.isdigit, remaining.split('s')[0])))\n        total_seconds += seconds\n    \n    return total_seconds\n```",
+      "```python\ndef parse_duration(s):\n    s = s.lower()\n    total_seconds = 0\n    \n    if 'h' in s:\n        hours = int(''.join(filter(str.isdigit, s.split('h')[0])))\n        total_seconds += hours * 3600\n        remaining = s.replace('h', '')\n    \n    if 'm' in remaining:\n        minutes = int(''.join(filter(str.isdigit, remaining.split('m')[0])))\n        total_seconds += minutes * 60\n        remaining = remaining.replace('m', '')\n    \n    if 's' in remaining:\n        seconds = int(''.join(filter(str.isdigit, remaining.split('s')[0])))\n        total_seconds += seconds\n    \n    return total_seconds\n```"
+     ]
+    },
+    {
+     "task": "fix_bug",
+     "median_wall_s": 15.03,
+     "median_tokens": 47,
+     "median_tok_per_s": 3.49,
+     "correct": "not auto-graded",
+     "replies": [
+      "def second_largest(nums):\n    unique_nums = list(set(nums))\n    if len(unique_nums) < 2:\n        return None\n    unique_nums.sort(reverse=True)\n    return unique_nums[1]",
+      "def second_largest(nums):\n    unique_nums = list(set(nums))\n    if len(unique_nums) < 2:\n        return None\n    unique_nums.sort(reverse=True)\n    return unique_nums[1]",
+      "def second_largest(nums):\n    unique_nums = list(set(nums))\n    if len(unique_nums) < 2:\n        return None\n    unique_nums.sort(reverse=True)\n    return unique_nums[1]"
+     ]
+    },
+    {
+     "task": "explain_regex",
+     "median_wall_s": 15.65,
+     "median_tokens": 52,
+     "median_tok_per_s": 3.53,
+     "correct": "not auto-graded",
+     "replies": [
+      "This regular expression matches email addresses that use only lowercase letters and numbers for the username and domain parts. It enforces strict formatting rules by allowing hyphens only in the middle of domain labels while requiring at least two characters for the top-level domain extension.",
+      "This regular expression matches email addresses that use only lowercase letters and numbers for the username and domain parts. It enforces strict formatting rules by allowing hyphens only in the middle of domain labels while requiring at least two characters for the top-level domain extension.",
+      "This regular expression matches email addresses that use only lowercase letters and numbers for the username and domain parts. It enforces strict formatting rules by allowing hyphens only in the middle of domain labels while requiring at least two characters for the top-level domain extension."
+     ]
+    }
+   ],
+   "live": true,
+   "order": "run-major, in narration order: fix_bug, explain_regex, parse_duration"
+  }
+ ]
+}

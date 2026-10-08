@@ -1,0 +1,15 @@
+{
+ "model_tag": "qwen3.5:4b",
+ "why_this_file_exists": "coding-task.json originally recorded only the model NAME. The registry then served a different build under the same tag, and nothing on disk could say which build had been measured. These are the facts about the earlier build, preserved before they were lost.",
+ "old_build": {
+  "id_prefix": "2a654d98e6fb",
+  "id_source": "`ollama list` ID column, read on 2026-10-07 immediately before the model was removed",
+  "registry_probe_2026-10-01": {"layers": 3, "bytes": 3389983260, "file": "probe_manifests.py output, cloud-manifest.json as of 1 Oct"},
+  "benchmark_file": "coding-task-2026-09-30-oldbuild.json",
+  "ollama_version_at_benchmark": "0.34.2 or 0.35.0 (the updater changed it mid-session and the file did not record it)",
+  "recoverable": false,
+  "recoverable_note": "Only a 12-character prefix survives. The tag no longer serves this build."
+ },
+ "new_build_registry_probe_2026-10-07": {"layers": 5, "bytes": 3324173757},
+ "cause_of_behaviour_change": "UNKNOWN. Both the weights (digest) and the Ollama runner version changed between the two runs; they cannot be separated. Do not claim either as the cause."
+}

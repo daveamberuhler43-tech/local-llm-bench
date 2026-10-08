@@ -1,0 +1,34 @@
+{
+ "source": "registry.ollama.ai v2 manifests API",
+ "control": {
+  "tag": "gpt-oss:120b-cloud-notarealtag-xyzzy",
+  "status": 404,
+  "note": "must 404 or the probe is meaningless"
+ },
+ "models": {
+  "cloud": {
+   "tag": "gpt-oss:120b-cloud",
+   "status": 200,
+   "layers": 0,
+   "bytes": 0,
+   "mb": 0.0,
+   "gb": 0.0
+  },
+  "local": {
+   "tag": "gpt-oss:20b",
+   "status": 200,
+   "layers": 4,
+   "bytes": 13793440755,
+   "mb": 13793.4,
+   "gb": 13.79
+  },
+  "tested": {
+   "tag": "qwen3.5:4b",
+   "status": 200,
+   "layers": 5,
+   "bytes": 3324173757,
+   "mb": 3324.2,
+   "gb": 3.32
+  }
+ }
+}

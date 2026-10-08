@@ -166,6 +166,58 @@ llama3.2:3b-instruct-q8_0    3780 MB    8.43   7/8
 3987 MB — but it throttles 27.0% over a sustained run against 2.4% for the q4, so it is working the
 processor harder for its size and that advantage may not survive a longer test than this one.
 
+## Is "local" actually local? (`probe_manifests.py`, `coding_task.py`)
+
+Two small tools, written for the video "Your 'Free Claude Code' Is Running in the Cloud".
+
+**`probe_manifests.py`** asks the Ollama registry for the manifest of three tags and counts the
+weight layers each one would download. A control tag that does not exist must return 404, or the
+probe is meaningless. On 7 Oct 2026 (`cloud-manifest.json`):
+
+| tag | layers | bytes |
+|---|---|---|
+| `gpt-oss:120b-cloud` | 0 | 0 |
+| `gpt-oss:20b` | 4 | 13,793,440,755 |
+| `qwen3.5:4b` | 5 | 3,324,173,757 |
+
+A `-cloud` tag has nothing to download because nothing is stored locally: requests go to a hosted
+service. This is how Ollama documents and prices those tags; the point is only that the word
+"local" in a tutorial is not evidence, and the download size is.
+
+**`coding_task.py`** sends one local model three ordinary coding requests (fix a bug, explain a
+regex, write `parse_duration`) with thinking off, temperature 0, seed 7, and records wall time,
+tokens, and the exact reply. The function is graded by running it against four inputs
+(`2h`, `45s`, `90m`, `1h30m`). `--live` runs the same thing with a real-time clock pinned to the
+corner, in the order the video shows them.
+
+```bash
+python probe_manifests.py                 # needs network, writes cloud-manifest.json
+python coding_task.py --models qwen3.5:4b # needs Ollama running, writes coding-task.json
+python coding_task.py --live              # same, with the clock
+```
+
+What the files in this repo say, with the caveats that matter:
+
+- `coding-task.json` records the **build digest and Ollama version** it measured
+  (`d8b0f5e9760c`, Ollama 0.35.1). A tag is not an identity; the digest is. If yours differs, you
+  are not running the same build as the video.
+- On that build `parse_duration` passes **1 of 4** cases (`2h`); `45s` and `90m` raise
+  `UnboundLocalError`; `1h30m` returns 11400 instead of 5400. All three runs returned the same
+  reply. `coding-task-2026-09-30-oldbuild.json` is the same tag measured on 30 Sep: **3 of 4**.
+  The registry served a different build under the same tag in between, and the Ollama version
+  changed as well, so **the cause is unknown** and the two cannot be separated
+  (`build-history.json`).
+- **Timings move with whatever else the laptop is doing.** The same three requests took 32.19 s and
+  40.82 s unrecorded (`...-run1.json`, `...-unrecorded.json`), 42.29 to 44.61 s with a screen
+  recorder running on an idle machine, and 79.74 s and 86.43 s while another program was
+  rendering video (`...contended...json`, kept on purpose). The video quotes the recorded run
+  (`coding-task.json`, 44.61 s) and says so. A screen recorder alone cost about 45% in a direct
+  A/B (60.4 s against 40.8 s).
+- `search-views.json` is the dated search snapshot behind the video's view-count claim. It was
+  taken with Restricted Mode on, so it is a filtered list.
+
+Nothing here measures the hosted path: no cloud timings, and no comparison with it, were taken.
+
 ## Limits
 
 One laptop, integrated graphics, CPU inference, three quantised models from one runtime. It says
